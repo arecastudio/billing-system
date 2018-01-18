@@ -1,0 +1,590 @@
+<?php
+ob_start();
+session_start();
+require_once("mydb.php");
+sambung();
+//error_reporting(E_ALL ^ (E_NOTICE | E_WARNING));
+require_once("global_functions.php");
+
+require_once("head.php");//mysql_num_rows();
+?>
+
+	<tr>
+		<td>
+		<br/>
+		<table class="wrapper1" width="800px" border="0" cellpadding="0" cellspacing="0" align="center">
+			<tr align="center" bgcolor="white">
+				<th width="50%"><a href="custcredit.php">TUNGGAKAN PELANGGAN</a></th>
+				<th width="50%"><a href="custinfo.php">CETAK DATA MASTER PELANGGAN</a></th>
+			</tr>			
+		</table>
+        <br />
+		<form id="fcustinf" action="" method="post">
+		<table width="900px" border="0" cellpadding="1" cellspacing="1" align="center" bgcolor="white"  style="font-family:Verdana, Arial, Helvetica, sans-serif;font-size:11px;box-shadow: 0 0 15px #999;background-color:#f0f0f0;">
+			<tr style="font:calibri;font-size:18px;font-weight:bold;color:#fff;background:linear-gradient(#666,#004);text-align:justify;">
+			  <td colspan="4"><center><font face="Arial,sans-serif" size="4px" style="padding:2px 0;text-shadow:4px -4px 4px red;color:#fff;font-size:19px;"><b>CETAK DATA MASTER PELANGGAN</b></font></center></td>
+		  </tr>			
+            <tr>
+				<td width="150"><input type="radio" name="r1" value="all" checked="checked">&nbsp;Semua Pelanggan</td>
+				<td>
+				<input type="radio" name="r1" value="perkolek" id="perkolek">Kolektif&nbsp;&nbsp;
+				<select name="optkolek" id="optkolek" >
+				  <!--option value="" selected="selected">--Pilih--</option-->
+				  <?php
+						$sql=mysql_query("select kode_kolektif, substr(ket_kolektif,1,22) from pel_kolektif order by kode_kolektif ASC");
+						//$sql=mysql_query("select distinct max(periode) from rekening1;");
+						//$sql=mysql_query("select (201408-0) as prd;");
+						while($row=mysql_fetch_row($sql)){
+							//$i=0;							
+							echo"<option value=". trim($row[0]).">".trim($row[0])."-".trim($row[1])."</option>";
+						}
+					?>
+                  </select>				</td>
+                <td>Stat Sambungan</td>
+				<td>
+                	<select name="opt_sambung" id="opt_sambung" style="background:linear-gradient(#fff,#ccc);color:#060;font-weight:bold;" >
+		            	<!--option value="9" selected="selected">Semua</option-->
+                        <option value="0">[0] Aktif</option>
+                        <option value="3">[3] Putus</option>
+                        <option value="5">[5] Hapus</option>
+                    </select>                </td>
+			</tr>
+			
+			<tr>
+				<td><input type="checkbox" name="chtgl" id="chtgl">Tanggal Input</td>
+				<td>
+					<input type="text" size="11" maxlength="10" name="txtawal" class="datepicker" value="<?php echo date('Y-m-d');?>"  />
+					&nbsp;<i>s/d</i>&nbsp;
+					<input type="text" size="11" maxlength="10" name="txtakhir" class="datepicker" value="<?php echo date('Y-m-d');?>"  />
+					&nbsp;&nbsp;<i>Format(YYYY-MM-DD)</i>				</td>
+				<td><input type="radio" name="r1" id="rnomor"  value="pernomor"/>
+                Dari No. Pel                </td>
+				<td><input type="text" name="txno1" id="txno1" size="7" maxlength="6" onkeypress="return isNumb(event);" />
+                &nbsp;s/d&nbsp;
+                <input type="text" name="txno2" id="txno2" size="7" maxlength="6" onkeypress="return isNumb(event);" />                </td>
+			</tr>
+			
+			<tr>
+				<td><input type="radio" name="r1" value="perupp" id="perupp">Cabang [UPP]</td>
+				<td>
+					<select name="optcabang" id="optcabang" >
+						<option value="" selected="selected">--Pilih--</option>
+						<?php
+						$sql=mysql_query("select cabang,nama from cabang order by cabang");
+						while($row=mysql_fetch_row($sql)){
+							echo"<option value=". trim($row[0]).">". trim($row[0])." - ".trim($row[1])."</option>";
+						}
+						?>
+					</select>				</td>
+				<td>
+					<input type="checkbox" name="chjpel" />Jns Pelanggan				</td>
+				<td>
+					<select name="optjpel">
+						<option value="">-Pilih-</option>
+						<?php
+						$sql=mysql_query("select kode_jenis_pel,ket_jenis_pel from pel_jenis");
+						while($row=mysql_fetch_row($sql)){
+							echo"<option value=". trim($row[0]).">".trim($row[0])." - ".trim($row[1])."</option>";
+						}
+						?>
+					</select>				</td>
+			</tr>
+			
+			<tr>
+			  <td><input type="radio" name="r1" value="perwil" id="perwil" />
+		      Wilayah</td>
+				<td>
+					<select name="optwilayah" id="optwilayah">
+						<option value="" selected="selected">--Pilih Wilayah--</option>
+						<?php
+						//mengambil nama-nama wilayah yang ada di database
+						$wilayah = mysql_query("SELECT kode_cabang,kode_wilayah,nama_wilayah FROM master_wilayah ORDER BY kode_wilayah");
+						while($p=mysql_fetch_array($wilayah)){
+						echo "<option value=\"$p[kode_wilayah]\">$p[nama_wilayah]</option>\n";
+						}
+						?>
+					</select>				</td>
+				<td>
+					<input type="checkbox" id="chkwm" name="chkwm" />Kondisi WM				</td>
+				<td><select name="optkwm" id="optkwm">
+                  <option value="">-Pilih-</option>
+                  <?php
+						$sql=mysql_query("select kode_kondisi,ket_kondisi from meter_kondisi");
+						while($row=mysql_fetch_row($sql)){
+							echo"<option value=". trim($row[0]).">".trim($row[0])." - ".trim($row[1])."</option>";
+						}
+						?>
+                </select></td>
+		  </tr>
+			
+			<tr>
+				<td><input type="radio" name="r1" value="perblok" id="perblok" />Blok</td>
+				<td>
+					<select name="optblok" id="optblok">
+						<option value="" selected="selected">--Pilih Blok--</option>
+						<?php
+						//mengambil nama-nama wilayah yang ada di database
+						$wilayah = mysql_query("select * from master_blok order by kode_blok");
+						while($p=mysql_fetch_array($wilayah)){
+						echo "<option value=\"$p[kode_blok]\">$p[kode_blok] - $p[ket_blok]</option>\n";
+						}
+						?>
+					</select>				</td>
+				<td colspan="2" align="left"><i><b>Jenis Report</b></i></td>
+			</tr>
+			
+			<tr>
+				<td><input type="radio" name="r1"  value="perdkd" id="perdkd"/>DKD</td>
+				<td>
+					<select id="optdkd" name="optdkd" onchange="setalamat();" >
+						<option value="" selected="selected">--Pilih--</option>
+						<?php
+						$sql=mysql_query("select dkd,jalan from dkd");
+						while($row=mysql_fetch_row($sql)){
+							echo"<option value=". trim($row[0]).">".trim($row[0])." - ".trim($row[1])."</option>";
+						}
+						?>	
+					</select>				</td>
+				<td><input name="jreport" type="radio" value="detail" checked="checked"/>Detail</td>
+				<td></td>
+			</tr>
+			
+			<tr>
+				<td><input type="checkbox" name="chgol" id="chgol" value="pergol">Golongan</td>
+				<td>
+					<select name="optgoltarif" id="optgoltarif" >
+						<option value="" selected="selected">--Pilih--</option>
+						<?php
+						$sql=mysql_query("select distinct gol,keterangan from tarif order by gol;");
+						while($row=mysql_fetch_row($sql)){
+							echo"<option value=". trim($row[0]).">".trim($row[0])." - ".trim($row[1])."</option>";
+						}
+						?>
+					</select>				</td>
+				<td><input name="jreport" type="radio" value="rekap"/>Rekap</td>
+				<td><input type="submit" name="proses2" id="proses2" value="Proses" class="kelas_tombol" /></td>
+			</tr>
+		</table>
+		</form>
+		
+		<table background="img/grids.gif" width="1024px" align="center" border="0" cellpadding="2" cellspacing="2" style="box-shadow: 0 0 15px #999;" class="rounded">
+		<tr>
+		<td width="100%" align="center">
+		<div style="height:300px;overflow:auto">
+		<table width="100%" border="1" cellpadding="1" cellspacing="1" align="center" bgcolor="white" style="border-collapse:collapse;background:#ffc;font-family:calibri;font-size:12px;">
+			<!--tr bgcolor="#00FFFF" align="center">
+				<td>No.</td>
+				<td>Nomor</td>
+				<td>No. Lama</td>
+				<td>Nama</td>
+				<td>Alamat</td>
+				<td>No.<br>Rmh </td>
+				<td>RT</td>
+				<td>RW</td>
+				<td>Cabang</td>
+				<td>Wil</td>
+				<td>Blok</td>
+				<td>DKD</td>
+				<td>Jns<br>Pel </td>
+				<td>Kond.<br>WM </td>
+				<td>Gol</td>
+			</tr-->
+			<?php
+			//db bof*********************************************************************************************************************************************
+	
+
+	
+//	====================================================
+	if(isset($_POST['proses1'])){
+		//session_register('eskiel');
+		//session_register('judul');
+		//session_register('theader');
+		
+		$slipit="";
+		$judul="Laporan Data Pelanggan";
+		$radio1=$_POST['r1'];
+		//$is_tgl=$_POST['chtgl'];
+		$tgl_awal=$_POST['txtawal'];
+		$tgl_akhir=$_POST['txtakhir'];
+		//$is_cabang=$_POST['chbranch'];
+		$cabang=$_POST['optcabang'];
+		$sambung=$_POST['opt_sambung'];
+		//$is_wilayah=$_POST['charea'];
+		$wilayah=$_POST['optwilayah'];
+		//$is_blok=$_POST['chblok'];
+		$blok=$_POST['optblok'];
+		//$is_dkd=$_POST['chdkd'];
+		$dkd=$_POST['optdkd'];
+		//$is_gol=$_POST['chgol'];
+		$goltarif=$_POST['optgoltarif'];
+		//$is_jpl=$_POST['chjpel'];
+		$jpl=$_POST['optjpel'];
+		if (isset($_POST['chkwm']))	$is_kwm=$_POST["chkwm"];
+		$kwm=$_POST['optkwm'];
+		$is_pilrekap=$_POST['pilrekap'];
+		//validasi
+		if(isset($_POST["chtgl"])){
+			if($tgl_awal !="" && $tgl_akhir !="")$slipit=cek_slip($slipit)."(tglstart BETWEEN '$tgl_awal' AND '$tgl_akhir')";	
+			
+		}
+		switch($radio1){
+			case "all":
+				break;
+			case "perupp":
+				if($cabang !="")$slipit=cek_slip($slipit)."cabang='$cabang'";			
+				break;
+			case "perwil":
+				if($wilayah !="")$slipit=cek_slip($slipit)."kode_wilayah='$wilayah'";			
+				break;
+			case "perblok":
+				if($blok !="")$slipit=cek_slip($slipit)."kode_blok='$blok'";			
+				break;
+			case "perdkd":
+				if($dkd !="")$slipit=cek_slip($slipit)."dkd='$dkd'";
+				break;
+		}
+		
+		if(isset($_POST["chgol"])){
+			if($goltarif !="")$slipit=cek_slip($slipit)."gol='$goltarif'";			
+		}
+		if(isset($_POST["chjpel"])){
+			if($jpl !="")$slipit=cek_slip($slipit)."(nomor in(select d.nomor from pel_kolektif_d as d inner join pel_kolektif as p on p.kode_kolektif=d.kode_kolektif where p.kode_jenis_pel='$jpl'))";			
+		}
+		if(isset($_POST["chkwm"])){
+			if($kwm !="")$slipit=cek_slip($slipit)."kondisi_meter='$kwm'";			
+		}
+		
+		if ($slipit!="")$slipit=" WHERE putus=$sambung AND ".$slipit;
+		
+		$sql="SELECT NOMOR,NOLAMA,NAMA,ALAMAT,NORUMAH,rt,rw,cabang,kode_wilayah,kode_blok,DKD,jenis_pel,kondisi_meter,GOL FROM master $slipit order by NOMOR;";
+		$_SESSION['eskiel']=$sql;
+		$_SESSION['judul']=$judul;
+		$_SESSION['jumfield']=14;		
+		$_SESSION['theader']="
+		<tr bgcolor=\"#00FFFF\" align=\"center\">
+				<td>No.</td>
+				<td>Nomor</td>
+				<td>No.<br>Lama</td>
+				<td>Nama</td>
+				<td>Alamat</td>
+				<td>No.<br>Rmh </td>
+				<td>RT</td>
+				<td>RW</td>
+				<td>Cabang</td>
+				<td>Wil</td>
+				<td>Blok</td>
+				<td>DKD</td>
+				<td>Jns Pel </td>
+				<td>Kondisi<br/>WM </td>
+				<td>Gol</td>
+			</tr>
+		";
+		
+		//header("location:reports/print_report.php");
+		echo '<script>window.open("reports/print_report.php");</script>';
+	}
+//	=================================================================================
+
+	if(isset($_POST['proses2'])){
+		
+		//session_register('eskiel');
+		//session_register('judul');
+		//session_register('theader');
+		
+		$slipit="";
+		$judul="Laporan Data Pelanggan PDAM Jayapura";	
+		
+		$radio1=$_POST['r1'];
+		//$is_tgl=$_POST['chtgl'];
+		$tgl_awal=$_POST['txtawal'];
+		$tgl_akhir=$_POST['txtakhir'];
+		//$is_cabang=$_POST['chbranch'];
+		$cabang=$_POST['optcabang'];
+		$sambung=$_POST['opt_sambung'];
+		
+		switch ($sambung){
+			case"0":
+				$judul.="<br>Status Pelanggan: [0] Aktif";
+				break;
+			
+			case"3":
+				$judul.="<br>Status Pelanggan: [3] Dibongkar";
+				break;
+			
+			case"5":
+				$judul.="<br>Status Pelanggan: [5] Dihapus";
+				break;
+				
+			default:
+				$judul.="<br>Status Pelanggan: Semua Kondisi";
+				break;
+		}
+		
+		
+		//$is_wilayah=$_POST['charea'];
+		$wilayah=$_POST['optwilayah'];
+		//$is_blok=$_POST['chblok'];
+		$blok=$_POST['optblok'];
+		//$is_dkd=$_POST['chdkd'];
+		$dkd=$_POST['optdkd'];
+		//$is_gol=$_POST['chgol'];
+		$goltarif=$_POST['optgoltarif'];
+		//$is_jpl=$_POST['chjpel'];
+		$jpl=$_POST['optjpel'];
+		if (isset($_POST['chkwm']))	$is_kwm=$_POST["chkwm"];
+		$kwm=$_POST['optkwm'];
+		//$is_pilrekap=$_POST['pilrekap'];
+		//validasi
+		if(isset($_POST["chtgl"])){
+			if($tgl_awal !="" && $tgl_akhir !="" && $tgl_awal!=$tgl_akhir){
+				$slipit=cek_slip($slipit)."(m.tgl_input BETWEEN '$tgl_awal' AND '$tgl_akhir')";
+				$judul.="<br>Periode tanggal input $tgl_awal s/d $tgl_akhir";
+			}else if($tgl_awal =='' && $tgl_akhir !=''){
+				$slipit=cek_slip($slipit)."(m.tgl_input <='$tgl_akhir')";
+				$judul.="<br>Per-tanggal input s/d $tgl_akhir";
+			}else if($tgl_awal !='' && $tgl_akhir ==''){
+				$slipit=cek_slip($slipit)."(m.tgl_input <='$tgl_awal')";
+				$judul.="<br>Per-tanggal input s/d $tgl_awal";
+			}else if($tgl_awal == $tgl_akhir){
+				$slipit=cek_slip($slipit)."(m.tgl_input ='$tgl_awal')";
+				$judul.="<br>Tanggal input $tgl_awal";
+					
+			}
+		}
+		switch($radio1){
+			case "all":
+				$slipit=cek_slip($slipit)."m.cabang<>'666'";
+				break;
+			case "perupp":
+			if(($key=$_POST["optcabang"])!=""){
+												//$slipit=cek_slip($slipit)."m.cabang='$key'";
+												//$judul.="<br>Cabang UPP : $key";
+			$slipit=cek_slip($slipit)."m.cabang='$key'";
+			echo"<script type=\"text/javascript\">document.getElementById(\"perupp\").checked=\"checked\";</script>";
+			echo"<script type=\"text/javascript\">document.getElementById(\"optcabang\").value=\"$key\";</script>";
+			$nama_key=getNama("nama",$key,"cabang","cabang");//field_to_get,val_inject,index,table_name
+			$judul.="<br>Cabang : $key - $nama_key";
+			}
+			
+			
+			/*	if($cabang !="")$slipit=cek_slip($slipit)."m.cabang='$cabang'";
+				$judul.="<br>Cabang:".getNama("nama","cabang",$cabang,"cabang");			*/
+				break;
+				case"perwil":
+				if(($key=$_POST["optwilayah"])!=""){
+												//$slipit=cek_slip($slipit)."m.kode_wilayah='$key'";
+												//$judul.="<br>Wilayah : $key";
+				$slipit=cek_slip($slipit)."m.kode_wilayah='$key'";
+				echo"<script type=\"text/javascript\">document.getElementById(\"perwil\").checked=\"checked\";</script>";
+				echo"<script type=\"text/javascript\">document.getElementById(\"optwilayah\").value=\"$key\";</script>";
+				$nama_key=getNama("nama_wilayah",$key,"kode_wilayah","master_wilayah");//field_to_get,val_inject,index,table_name
+				$judul.="<br>Wilayah : $key - $nama_key";
+				}
+			
+				break;				
+				case"perblok":
+				if(($key=$_POST["optblok"])!=""){
+												//$slipit=cek_slip($slipit)."m.kode_blok='$key'";
+												//$judul.="<br>Blok : $key";
+				$slipit=cek_slip($slipit)."m.kode_blok='$key'";
+				echo"<script type=\"text/javascript\">document.getElementById(\"perblok\").checked=\"checked\";</script>";
+				echo"<script type=\"text/javascript\">document.getElementById(\"optblok\").value=\"$key\";</script>";
+				$nama_key=getNama("ket_blok",$key,"kode_blok","master_blok");//field_to_get,val_inject,index,table_name
+				$judul.="<br>Blok : $key - $nama_key";
+				}
+				break;
+				
+			case"perdkd":
+			if(($key=$_POST["optdkd"])!=""){
+												//$slipit=cek_slip($slipit)."m.dkd='$key'";
+												//$judul.="<br>DKD [WPT] : $key";
+			$slipit=cek_slip($slipit)."m.dkd='$key'";
+			echo"<script type=\"text/javascript\">document.getElementById(\"perdkd\").checked=\"checked\";</script>";
+			echo"<script type=\"text/javascript\">document.getElementById(\"optdkd\").value=\"$key\";</script>";
+			$nama_key=getNama("jalan",$key,"dkd","dkd");//field_to_get,val_inject,index,table_name
+			$judul.="<br>DKD [WPT] : $key - $nama_key";
+			}	
+			/*	
+			case "perdkd":
+				if($dkd !="")$slipit=cek_slip($slipit)."m.dkd='$dkd'";
+				$judul.="<br>DKD: $dkd";*/
+				break;
+			case"pernomor":
+				if(($key1=$_POST["txno1"])!="" && ($key2=$_POST["txno2"])!=""){
+					$slipit=cek_slip($slipit)."m.nomor BETWEEN '$key1' AND '$key2'";
+					$judul.="<br>Dari Nomor Pelanggan : [$key1] s/d [$key2]";
+					echo"<script type=\"text/javascript\">document.getElementById(\"rnomor\").checked=\"checked\";</script>";
+					echo"<script type=\"text/javascript\">document.getElementById(\"txno1\").value=\"$key1\";</script>";
+					echo"<script type=\"text/javascript\">document.getElementById(\"txno2\").value=\"$key2\";</script>";
+				}
+				break;
+			/*case"perkolek":
+				if(($key=$_POST["optkolek"])!=""){
+				$slipit=cek_slip($slipit)."m.nomor in (SELECT DISTINCT p.nomor FROM pel_kolektif_d AS p WHERE p.kode_kolektif='$key')";
+				$nama_key=getNama("ket_kolektif",$key,"kode_kolektif","pel_kolektif");
+				$judul.="<br>Dari Kode Kolektif : [$key] - $nama_key";
+				}*/
+				case"perkolek":
+				if(($key=$_POST["optkolek"])!=""){
+				$slipit=cek_slip($slipit)."m.nomor in (SELECT DISTINCT p.nomor FROM pel_kolektif_d AS p WHERE p.kode_kolektif='$key')";
+				$nama_key=getNama("ket_kolektif",$key,"kode_kolektif","pel_kolektif");
+				$judul.="<br>Dari Kode Kolektif : [$key] - $nama_key";
+				echo"<script type=\"text/javascript\">document.getElementById(\"perkolek\").checked=\"checked\";</script>";
+				echo"<script type=\"text/javascript\">document.getElementById(\"optkolek\").value=\"$key\";</script>";
+				}
+				break;
+				}
+				$gol_tarif="";
+				if(isset($_POST["chgol"])&&($key=$_POST['optgoltarif'])!=''){
+				$slipit=cek_slip($slipit)."m.gol='$key'";
+				echo"<script type=\"text/javascript\">document.getElementById(\"chgol\").checked=\"checked\";</script>";
+				echo"<script type=\"text/javascript\">document.getElementById(\"optgoltarif\").value=\"$key\";</script>";
+												#$nama_key=getNama("gol",$key,"tarif");
+				$judul.="<br>Golongan Tarif : $key";
+				}
+		/*if(isset($_POST["chgol"])){
+			if($goltarif !="")$slipit=cek_slip($slipit)."m.gol='$goltarif'";
+			$judul.="<br>Golongan: $goltarif";			
+		}*/
+		if(isset($_POST["chjpel"])){
+			if($jpl !=""){
+				if ($jpl>'1') {
+					$slipit=cek_slip($slipit)."(nomor in (select distinct d.nomor from pel_kolektif_d as d inner join pel_kolektif as p on p.kode_kolektif=d.kode_kolektif where p.kode_jenis_pel='$jpl'))";
+				}else{
+					$slipit=cek_slip($slipit)."(nomor in (select distinct nomor from master where nomor not in(select distinct d.nomor from pel_kolektif_d as d inner join pel_kolektif as p on p.kode_kolektif=d.kode_kolektif where p.kode_jenis_pel>'1')))";
+				}
+			}
+			$nama_key=getNama("ket_jenis_pel",$jpl,"kode_jenis_pel","pel_jenis");//field_to_get,val_inject,index,table_name
+			$judul.="<br>Jenis Pel. : $nama_key";			
+		}
+		$kwm="";
+		if(isset($_POST["chkwm"])&&($key=$_POST['optkwm'])!=''){
+		$slipit=cek_slip($slipit)."m.kondisi_meter='$key'";
+		echo"<script type=\"text/javascript\">document.getElementById(\"chkwm\").checked=\"checked\";</script>";
+		echo"<script type=\"text/javascript\">document.getElementById(\"optkwm\").value=\"$key\";</script>";
+		$kwm=kondisi_wm($key);
+		$judul.="<br>Kondisi Water Meter : $key - $kwm";
+													
+													/*if(isset($_POST["chkwm"])){
+														if($kwm !="")$slipit=cek_slip($slipit)."m.kondisi_meter='$kwm'";
+														echo"<script type=\"text/javascript\">document.getElementById(\"chkwm\").checked=\"checked\";</script>";
+														echo"<script type=\"text/javascript\">document.getElementById(\"optkwm\").value=\"$key\";</script>";
+														
+														$judul.="<br>Kondisi Water Meter: $kwm";			*/
+		}
+		
+		if ($slipit!="")$slipit=" WHERE putus=$sambung AND ".$slipit;
+		#echo"<script type=\"text/javascript\">document.getElementById(\"chkwm\").checked=\"checked\";</script>";
+		echo"<script type=\"text/javascript\">document.getElementById(\"opt_sambung\").value=\"$sambung\";</script>";
+		
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~		
+		if(isset($_POST["jreport"])&& $_POST["jreport"]=="detail"){
+		$alg=array(0=>"center",1=>"center",2=>"left",3=>"left",4=>"center",5=>"center",6=>"center",7=>"center",8=>"center",9=>"center",10=>"center",11=>"center",12=>"center",13=>"center");
+		$t_header="
+		<tr align=\"center\" style=\"color:#000;font-weight:bold;\">
+				<td align=\"center\">No.</td>
+				<td align=\"center\">Nomor</td>
+				<td align=\"center\">No. Lama</td>
+				<td width=200>Nama</td>
+				<td width=250>Alamat</td>
+				<td align=\"center\">No.<br>Rmh </td>
+				<td align=\"center\">RT</td>
+				<td align=\"center\">RW</td>
+				<td width=90 align=\"center\">Cabang</td>
+				<td align=\"center\">Wil</td>
+				<td align=\"center\">Blok</td>
+				<td align=\"center\">DKD</td>
+				<td align=\"center\">Jns Pel </td>
+				<td align=\"center\">Kondisi<br/>WM </td>
+				<td align=\"center\">Gol</td>
+			</tr>
+		";
+		$sql="SELECT m.NOMOR,m.NOLAMA,m.NAMA,m.ALAMAT,m.NORUMAH,m.rt,m.rw,if(m.cabang='02','UPP JAPUT',c.nama),m.kode_wilayah,m.kode_blok,m.DKD,m.jenis_pel,m.kondisi_meter,m.GOL
+		FROM master AS m
+		INNER JOIN cabang AS c ON c.cabang=m.cabang
+		$slipit
+		ORDER BY m.NOLAMA;";
+		$_SESSION['eskiel']=$sql;
+		$_SESSION['judul']=$judul;
+		$_SESSION['jumfield']=14;
+		$_SESSION['theader']=$t_header;
+		$_SESSION['alinea']=$alg;
+		//$_SESSION['orientasi']="L";
+		$_SESSION['orientasi']='L';
+		$_SESSION['batas']=30;
+		$j=0;
+		$qry=mysql_query($sql);
+		echo $t_header;
+		while($row=mysql_fetch_row($qry)){
+			$j++;
+			echo"<tr><td align=\"center\">$j</td>";
+			for($i=0;$i<14;$i++){
+				echo"<td align=\"$alg[$i]\">".trim($row[$i])."</td>";
+			}
+			echo"</tr>";		
+		}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		}elseif(isset($_POST["jreport"])&& $_POST["jreport"]=="rekap"){
+			//echo"huuuuuuuuuuuuuubbbbbbbbbbbbbaaaaaaaaaaaaaaaaaaa!!!!!!!!!!!";
+			$judul="Rekap ".$judul;
+			$alg=array("center","left","right","right");
+			$t_header="
+			<tr align=\"center\" style=\"background-color:#fff;color:#000;font-weight:bold;\">
+					<td width=15>No.</td>
+					<td width=140>Golongan</td>
+					<td width=400>Keterangan</td>
+					<td width=150>Jumlah<br>Pelanggan</td>
+				</tr>
+			";
+			//if($slipit!="")$slipit .=" and ";
+			//$sql="SELECT distinct vj.gol,vg.nama,vj.jml FROM v_jgol vj,v_gol vg,master m where vj.gol=vg.gol and m.gol=vj.gol order by vj.gol;";
+			$sql="select distinct m.gol,(select distinct keterangan from tarif where gol=m.gol)as nama,count(m.gol) as jml from master AS m $slipit group by m.gol order by m.gol";
+			$_SESSION['eskiel']=$sql;
+			$_SESSION['judul']=$judul;
+			$_SESSION['jumfield']=3;
+			$_SESSION['theader']=$t_header;
+			$_SESSION['alinea']=$alg;
+			$_SESSION['orientasi']='P';
+			$j=0;
+			$qry=mysql_query($sql)or die("err: ".mysql_error());
+			echo $t_header;
+			while($row=mysql_fetch_row($qry)){
+				$j++;
+				echo"<tr><td align=\"center\">$j</td>";
+				for($i=0;$i<3;$i++){
+					echo"<td align=\"$alg[$i]\">".trim($row[$i])."</td>";
+				}
+				echo"</tr>";		
+			}
+			
+			$sql_tot="SELECT DISTINCT FORMAT(COUNT(*),0) AS jml FROM master AS m $slipit LIMIT 1;";
+			$qry_tot=mysql_query($sql_tot)or die("erR: ".mysql_error());
+			if($row1=mysql_fetch_row($qry_tot)){
+				echo"<tr><th colspan=\"3\">TOTAL</th><th align=\"right\">$row1[0]</th></tr>";
+				$_SESSION["tfooter"]="<tr><th colspan=\"3\" align=\"center\">TOTAL</th><th align=\"right\">$row1[0]</th></tr>";
+			}
+			
+		}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	}
+			
+			//db eof*********************************************************************************************************************************************
+			?>			
+		</table>
+		</div>
+				</td>
+			</tr>
+			<tr>
+				<td align="center">
+					<a href="reports/print_report.php" target="_blank" style="color:#FF0000;font-weight:bold">-= Cetak Report =-</a>
+				</td>
+			</tr>
+		</table><br />
+		</td>
+	</tr>
+	
+<?php
+//mysql_close();
+putus();
+require_once("foot.php");
+?>

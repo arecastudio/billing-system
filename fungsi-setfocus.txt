@@ -1,0 +1,6 @@
+<script language="javascript" type="text/javascript">
+        if (document.getElementById("Textbox1").value == "") {
+            alert("Invalid date");
+            document.getElementById('Textbox1').value = '__/__/____';
+            document.getElementById("Textbox1").focus();
+        }

@@ -1,0 +1,42 @@
+ul#menu, ul#menu ul.sub-menu {
+ padding:0;
+ margin:0;
+ text-align:center;
+ opacity:.9
+}
+
+ul#menu li, ul#menu ul.sub-menu li {
+ list-style-type:none;
+ display:inline-block;
+ width:80%
+}
+
+ul#menu li a, ul#menu li ul.sub-menu li a {
+ text-decoration:none;
+ color:#fff;
+ background:#000;
+ font-family:Geneva, Arial, Helvetica, sans-serif;
+ padding:8px;
+ display:block;
+ font-size:11px
+}
+
+ul#menu li a:hover, ul#menu li ul.sub-menu li a:hover {
+ background:#333
+}
+
+ul#menu li {
+ position:relative
+}
+
+ul#menu li ul.sub-menu {
+ position: absolute;
+ top:30px; /* Ganti TOP menjadi BOTTOM jika ingin submenu muncul ke atas (Drop Up) */
+ display:none
+}
+
+ul#menu li:hover ul.sub-menu {
+ display:block
+}
+
+	
